@@ -27,13 +27,13 @@ public class Program
         app.MapControllers();
         
         app.UseRouting()
-    .UseEndpoints(endpoints =>
-    {
-        endpoints.MapServerSentEvents("/sse-heartbeat");
-        endpoints.MapServerSentEvents<EventsService>("/sse-events");
+        .UseEndpoints(endpoints =>
+        {
+            endpoints.MapServerSentEvents("/sse-heartbeat");
+            endpoints.MapServerSentEvents<EventsService>("/sse-events");
 
-        endpoints.MapControllerRoute("default", "{controller=EventsController}/{action=sse-events-receiver}");
-    });
+            endpoints.MapControllerRoute("default", "{controller=EventsController}/{action=sse-events-receiver}");
+        });
 
         app.Run();
     }
