@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace BuildATrain.Database.Repositories
 {
@@ -39,6 +41,17 @@ namespace BuildATrain.Database.Repositories
         {
             _entitySet.Remove(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<T> GetAttributesById(int id)
+        {
+            var idParameter = new SqlParameter("@Id", SqlDbType.Int) { Value = id };
+
+            var entities = await _context.Set<T>()
+                .FromSqlRaw("EXEC GetAttributesById @Id", idParameter)
+                .ToListAsync();
+
+            return entities.FirstOrDefault();
         }
     }
 }
