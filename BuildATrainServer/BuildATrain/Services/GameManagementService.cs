@@ -1,4 +1,4 @@
-﻿using BuildATrain.Models;
+﻿using BuildATrain.Models.Game;
 
 namespace BuildATrain.Services
 {
@@ -27,6 +27,7 @@ namespace BuildATrain.Services
             if (!loadedGames.ContainsKey(userID))
             {
                 loadedGames.Add(userID, new Thread(() => RunGameLoop(gameModel)));
+                loadedGames[userID].Start();
             }
             else
             {
@@ -38,12 +39,29 @@ namespace BuildATrain.Services
         {
             if (loadedGames.TryGetValue(userID, out Thread? gameThread))
             {
+                gameThread.Suspend();
                 gameThread.Abort();
                 loadedGames.Remove(userID);
             }
             else
             {
                 //return game does not exist
+            }
+        }
+
+        public void PauseAllGames()
+        {
+            foreach (KeyValuePair<string, Thread> loadedGame in loadedGames)
+            {
+                loadedGame.Value.Suspend();
+            }
+        }
+
+        public void ResumeAllGames()
+        {
+            foreach (KeyValuePair<string, Thread> loadedGame in loadedGames)
+            {
+                loadedGame.Value.Resume();
             }
         }
 

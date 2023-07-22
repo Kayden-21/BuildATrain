@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Lib.AspNetCore.ServerSentEvents" Version="8.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Http\Response\" />
+    <Folder Include="Services\SSE\" />
   </ItemGroup>
 
 </Project>
