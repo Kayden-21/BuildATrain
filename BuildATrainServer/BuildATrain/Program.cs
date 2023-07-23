@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using BuildATrain.Database.Repositories;
 using BuildATrain.Services;
 using Lib.AspNetCore.ServerSentEvents;
+using Microsoft.AspNetCore.ResponseCompression;
 
 public class Program
 {
@@ -22,10 +23,11 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseCors();
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapControllers();
-        
+
         app.UseRouting()
         .UseEndpoints(endpoints =>
         {
@@ -40,10 +42,16 @@ public class Program
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-        
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            });
+        });
+
         services.AddServerSentEvents();
 
         services.AddServerSentEvents<IEventsService, EventsService>(options =>
@@ -51,7 +59,18 @@ public class Program
             options.ReconnectInterval = 5000;
         });
 
-        services.AddHostedService<Heartbeat>();
+        services.AddSingleton<IHostedService, Heartbeat>();
+
+        services.AddResponseCompression(options =>
+        {
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "text/event-stream" });
+        });
+
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+
+        services.AddSingleton< GameManagementService>();
 
         services.AddDbContext<DatabaseContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("BuildATrain")));

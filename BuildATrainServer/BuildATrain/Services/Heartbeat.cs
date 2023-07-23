@@ -1,8 +1,9 @@
 ﻿using Lib.AspNetCore.ServerSentEvents;
+using System.Threading;
 
 namespace BuildATrain.Services
 {
-    public class Heartbeat: IHostedService
+    public class Heartbeat: BackgroundService
     {
         private readonly IServerSentEventsService sseService;
 
@@ -11,9 +12,9 @@ namespace BuildATrain.Services
             this.sseService = sseService;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            try
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var clients = sseService.GetClients();
 
@@ -29,15 +30,6 @@ namespace BuildATrain.Services
 
                 await Task.Delay(1000);
             }
-            catch(TaskCanceledException)
-            {
-
-            }
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }

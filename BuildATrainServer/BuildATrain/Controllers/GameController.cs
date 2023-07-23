@@ -1,5 +1,6 @@
 ﻿using BuildATrain.Common;
 using BuildATrain.Models.Http.Request;
+using BuildATrain.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuildATrain.Controllers
@@ -8,6 +9,21 @@ namespace BuildATrain.Controllers
     [Route("game")]
     public class GameController : ControllerBase
     {
+        #region Fields
+
+        private readonly GameManagementService _gameManagementService;
+
+        #endregion
+
+        #region Ctor
+
+        public GameController(GameManagementService gameManagementService)
+        {
+            _gameManagementService = gameManagementService;
+        }
+
+        #endregion
+
         #region Post
 
         [HttpPost]
@@ -30,26 +46,10 @@ namespace BuildATrain.Controllers
 
         [HttpGet]
         [Route("load")]
-        public void LoadGame(GetLoadGameRequest getLoadGameRequest)
+        public async Task LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
         {
-
+            await _gameManagementService.LoadGame(getLoadGameRequest.username, new Models.Game.GameModel());
         }
-
-        //[HttpGet]
-        //[Route("connect")]
-        //public async Task Connect()
-        //{
-        //    Response.Headers.Add(Headers.CONTENT_TYPE, HeaderValues.ContentType.TEXT_OR_EVENT_STREAM);
-        //    Response.Headers.Add(Headers.CACHE_CONTROL, HeaderValues.CacheControl.NO_CACHE);
-        //    Response.Headers.Add(Headers.CONNECTION, HeaderValues.Connection.KEEP_ALIVE);
-
-        //    while (true)
-        //    {
-        //        await Response.WriteAsync("Ah ah ah ah staying alive, staying alive");
-        //        await Response.Body.FlushAsync();
-        //        await Task.Delay(1000);
-        //    }
-        //}
 
         #endregion
 

@@ -20,11 +20,11 @@ namespace BuildATrain.Controllers
 
         }
 
-        [ActionName("sse-notifications-receiver")]
-        [AcceptVerbs("GET")]
-        public void Receiver()
-        {
+        //[HttpGet]
+        //[Route("sse-events-receiver")]
+        //public void Receiver()
+        //{
 
-        }
+        //}
     }
 }
