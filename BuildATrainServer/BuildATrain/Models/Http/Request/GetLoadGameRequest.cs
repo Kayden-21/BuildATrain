@@ -2,6 +2,6 @@
 {
     public class GetLoadGameRequest
     {
-        public string username { get; set; }
+        public string Username { get; set; }
     }
 }

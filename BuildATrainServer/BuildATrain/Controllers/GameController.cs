@@ -48,7 +48,7 @@ namespace BuildATrain.Controllers
         [Route("load")]
         public async Task LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
         {
-            await _gameManagementService.LoadGame(getLoadGameRequest.username, new Models.Game.GameModel());
+            await _gameManagementService.LoadGame(getLoadGameRequest.Username, new Models.Game.GameModel());
         }
 
         #endregion
