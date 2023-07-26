@@ -1,4 +1,7 @@
-﻿namespace BuildATrain.Database.Repositories
+﻿using BuildATrain.Models.Game;
+using System.Diagnostics;
+
+namespace BuildATrain.Database.Repositories
 {
     public interface IRepository<T> where T : class
     {
@@ -7,5 +10,6 @@
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
+        Task<TrainModel?> GetTrainByUsernameAndLocomotiveNameAsync(string username, string locomotiveName);
     }
 }

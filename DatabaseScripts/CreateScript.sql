@@ -50,6 +50,29 @@ GO
 Stored Procs
 */
 
+CREATE PROCEDURE InsertPlayerTrain
+    @LocomotiveSize VARCHAR(255),
+    @NumFuelCars INT,
+    @NumPassengerCars INT,
+    @NumCargoCars INT,
+    @Username VARCHAR(50)
+AS
+BEGIN
+    DECLARE @LocomotiveId INT
+    DECLARE @PlayerId INT
+
+    INSERT INTO Locomotives (AttributeId, LocomotiveSize)
+    VALUES (2, @LocomotiveSize);
+
+    SET @LocomotiveId = SCOPE_IDENTITY();
+
+    SELECT @PlayerId = Id FROM Players WHERE Username = @Username;
+
+    INSERT INTO PlayerTrains (TrainId, PlayerId, LocomotiveTypeId, NumFuelCars, NumPassengerCars, NumCargoCars)
+    VALUES (@LocomotiveId, @PlayerId, @LocomotiveId, @NumFuelCars, @NumPassengerCars, @NumCargoCars);
+END;
+GO;
+
 /* GetPlayerTrainsByEmail takes user email, and returns the player's train setup */
 CREATE PROCEDURE GetPlayerTrainsByEmail
   @Email NVARCHAR(255)
