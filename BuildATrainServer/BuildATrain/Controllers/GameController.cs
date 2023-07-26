@@ -44,7 +44,7 @@ namespace BuildATrain.Controllers
             var fuelCarCount = 0;
 
             var newTrain = new TrainModel
-            {
+        {
                 LocomotiveType = locomotiveType,
                 LocomotiveName = locomotiveName,
                 PassengerCarCount = passengerCarCount,
@@ -95,7 +95,7 @@ namespace BuildATrain.Controllers
             if (!isRemoved)
             {
                 return NotFound();
-            }
+        }
 
             return NoContent();
         }

@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using BuildATrain.Database.Repositories;
+using BuildATrain.Services;
+using Lib.AspNetCore.ServerSentEvents;
+using Microsoft.AspNetCore.ResponseCompression;
 
 public class Program
 {
@@ -20,18 +23,54 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseCors();
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapControllers();
+
+        app.UseRouting()
+        .UseEndpoints(endpoints =>
+        {
+            endpoints.MapServerSentEvents("/sse-heartbeat");
+            endpoints.MapServerSentEvents<EventsService>("/sse-events");
+
+            endpoints.MapControllerRoute("default", "{controller=EventsController}/{action=sse-events-receiver}");
+        });
 
         app.Run();
     }
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            });
+        });
+
+        services.AddServerSentEvents();
+
+        services.AddServerSentEvents<IEventsService, EventsService>(options =>
+        {
+            options.ReconnectInterval = 5000;
+        });
+
+        services.AddSingleton<IHostedService, Heartbeat>();
+
+        services.AddResponseCompression(options =>
+        {
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "text/event-stream" });
+        });
+
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+
+        services.AddSingleton< GameManagementService>();
 
         services.AddDbContext<DatabaseContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("BuildATrain")));
