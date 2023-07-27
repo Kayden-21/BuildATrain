@@ -1,4 +1,6 @@
-﻿using Lib.AspNetCore.ServerSentEvents;
+﻿using BuildATrain.Models.Event;
+using Lib.AspNetCore.ServerSentEvents;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 
 namespace BuildATrain.Services
@@ -12,6 +14,11 @@ namespace BuildATrain.Services
             _eventsService = eventsService;
 
             _eventsService.ClientConnected += _eventsService_ClientConnected;
+        }
+
+        protected async Task SendSSEEventAsync(Guid clientGuid, ServerSentEvent @event)
+        {
+            await _eventsService.GetClient(clientGuid).SendEventAsync(@event);
         }
 
         protected async Task SendSSEEventAsync(Guid clientGuid, List<string> data, string Id = "", string Type = "")
