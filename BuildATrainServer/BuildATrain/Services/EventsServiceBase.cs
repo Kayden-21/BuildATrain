@@ -1,4 +1,5 @@
 ﻿using Lib.AspNetCore.ServerSentEvents;
+using System.Globalization;
 
 namespace BuildATrain.Services
 {
@@ -13,13 +14,13 @@ namespace BuildATrain.Services
             _eventsService.ClientConnected += _eventsService_ClientConnected;
         }
 
-        protected async Task SendSSEEventAsync(Guid clientGuid)
+        protected async Task SendSSEEventAsync(Guid clientGuid, List<string> data, string Id = "", string Type = "")
         {
             await _eventsService.GetClient(clientGuid).SendEventAsync(new ServerSentEvent
             {
-                Id = "",
-                Type = "",
-                Data = new List<string> { clientGuid.ToString() }
+                Id = Id,
+                Type = Type,
+                Data = data
             });
         }
 

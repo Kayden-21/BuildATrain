@@ -8,5 +8,7 @@
         public int FuelUse { get; set; }
         public int FuelAdded { get; set; }
         public decimal PurchasePrice { get; set; }
+        public int IncomeMinRange { get; set; }
+        public int IncomeMaxRange { get; set; }
     }
 }
