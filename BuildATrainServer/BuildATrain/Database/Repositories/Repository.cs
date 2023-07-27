@@ -67,14 +67,14 @@ namespace BuildATrain.Database.Repositories
             if (isSuccess)
             {
                 var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
-                var locomotiveTypeParam = new SqlParameter("@LocomotiveType", SqlDbType.VarChar) { Value = locomotiveType };
+                var locomotiveTypeParam = new SqlParameter("@LocomotiveTypeId", SqlDbType.Int) { Value = locomotiveType };
                 var locomotiveNameParam = new SqlParameter("@LocomotiveName", SqlDbType.VarChar) { Value = locomotiveName };
                 var numFuelCarsParam = new SqlParameter("@NumFuelCars", SqlDbType.Int) { Value = numFuelCars };
                 var numPassengerCarsParam = new SqlParameter("@NumPassengerCars", SqlDbType.Int) { Value = numPassengerCars };
                 var numCargoCarsParam = new SqlParameter("@NumCargoCars", SqlDbType.Int) { Value = numCargoCars };
                 var emailParam = new SqlParameter("@Email", SqlDbType.VarChar) { Value = email };
 
-                await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveType @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Email",
+                await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveTypeId, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Email",
                     locomotiveSizeParam, locomotiveTypeParam, locomotiveNameParam, numFuelCarsParam, numPassengerCarsParam, numCargoCarsParam, emailParam);
 
                 return true;
@@ -85,7 +85,7 @@ namespace BuildATrain.Database.Repositories
 
         public async Task<Attributes> GetAttributesByAttributeIdAsync(int attributeId)
         {
-            var attributeIdParam = new SqlParameter("@AttributeId", SqlDbType.NVarChar) { Value = attributeId };
+            var attributeIdParam = new SqlParameter("@AttributeId", SqlDbType.Int) { Value = attributeId };
             var result = await _context.Set<Attributes>()
                 .FromSqlRaw("EXEC GetAttributesById @AttributeId", attributeIdParam)
                 .FirstAsync();
@@ -135,9 +135,9 @@ namespace BuildATrain.Database.Repositories
             var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar) { Value = email };
             var result = await _context.Set<WalletModel>()
                 .FromSqlRaw("EXEC GetCurrentWalletByEmail @Email", emailParam)
-                .FirstAsync();
+                .ToListAsync();
 
-            return result;
+            return result.FirstOrDefault();
         }
 
         public async Task<bool> PreformPurchase(string email, int attributeId, decimal currentWallet)

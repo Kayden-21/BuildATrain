@@ -11,7 +11,7 @@ USE BuildATrainDb
 GO
 
 CREATE TABLE Attributes (
-  Id INT PRIMARY KEY,
+  Id INT IDENTITY(1,1) PRIMARY KEY,
   AttributeName VARCHAR(255),
   CarCapacity INT,
   FuelUse INT,
@@ -23,7 +23,7 @@ CREATE TABLE Attributes (
 GO
 
 CREATE TABLE Locomotives (
-  Id INT PRIMARY KEY,
+  Id INT IDENTITY(1,1) PRIMARY KEY,
   AttributeId INT,
   LocomotiveSize VARCHAR(255),
   FOREIGN KEY (AttributeId) REFERENCES Attributes(Id)
@@ -31,7 +31,7 @@ CREATE TABLE Locomotives (
 GO
 
 CREATE TABLE Players (
-  Id INT PRIMARY KEY,
+  Id INT IDENTITY(1,1) PRIMARY KEY,
   Username VARCHAR(50),
   Email NVARCHAR(255),
   CurrentWallet DECIMAL(18,2)
@@ -39,7 +39,7 @@ CREATE TABLE Players (
 GO
 
 CREATE TABLE PlayerTrains (
-  TrainId INT PRIMARY KEY,
+  TrainId INT IDENTITY(1,1) PRIMARY KEY,
   PlayerId INT,
   LocomotiveTypeId INT,
   LocomotiveName VARCHAR(50),
@@ -62,7 +62,7 @@ CREATE PROCEDURE InsertPlayerTrain
     @NumFuelCars INT,
     @NumPassengerCars INT,
     @NumCargoCars INT,
-    @Username VARCHAR(50)
+    @Email NVARCHAR(255)
 AS
 BEGIN
     DECLARE @LocomotiveId INT
@@ -73,7 +73,7 @@ BEGIN
 
     SET @LocomotiveId = SCOPE_IDENTITY();
 
-    SELECT @PlayerId = Id FROM Players WHERE Username = @Username;
+    SELECT @PlayerId = Id FROM Players WHERE Email = @Email;
 
     INSERT INTO PlayerTrains (TrainId, PlayerId, LocomotiveTypeId, LocomotiveName, NumFuelCars, NumPassengerCars, NumCargoCars)
     VALUES (@LocomotiveId, @PlayerId, @LocomotiveId, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars);
@@ -108,7 +108,7 @@ END;
 GO
 
 CREATE PROCEDURE GetAndRemovePlayerTrains
-  @Email NVARCHAR(50),
+  @Email NVARCHAR(255),
   @LocomotiveName VARCHAR(50)
 AS
 BEGIN
@@ -162,7 +162,7 @@ END;
 GO
 
 CREATE PROCEDURE GetCurrentWalletByEmail
-  @Email INT
+  @Email NVARCHAR(255)
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -174,46 +174,46 @@ END;
 GO
 
 /* PerformPurchaseByAttributeId takes playerId and attributeId, and returns the new wallet, a success bit and a message */
-CREATE PROCEDURE PerformPurchaseByAttributeId
-  @Email VARCHAR(50),
-  @AttributeId INT,
-  @CurrentWallet DECIMAL(18,2) OUTPUT,
-  @Success BIT OUTPUT,
-  @Message NVARCHAR(255) OUTPUT
-AS
-BEGIN
-  SET NOCOUNT ON;
-  SET @Success = 0;
+	CREATE PROCEDURE PerformPurchaseByAttributeId
+	  @Email NVARCHAR(255),
+	  @AttributeId INT,
+	  @CurrentWallet DECIMAL(18,2) OUTPUT,
+	  @Success BIT OUTPUT,
+	  @Message NVARCHAR(255) OUTPUT
+	AS
+	BEGIN
+	  SET NOCOUNT ON;
+	  SET @Success = 0;
 
-  BEGIN TRANSACTION;
+	  BEGIN TRANSACTION
 
-  BEGIN TRY
-    DECLARE @PurchasePrice DECIMAL(18,2);
-    SELECT @PurchasePrice = PurchasePrice
-    FROM Attributes
-    WHERE Id = @AttributeId;
+	  BEGIN TRY
+		DECLARE @PurchasePrice DECIMAL(18,2);
+		SELECT @PurchasePrice = PurchasePrice
+		FROM Attributes
+		WHERE Id = @AttributeId;
 
-    IF @CurrentWallet >= @PurchasePrice
-    BEGIN
-      UPDATE Players
-      SET CurrentWallet = CurrentWallet - @PurchasePrice
-      WHERE Email = @Email;
+		IF @CurrentWallet >= @PurchasePrice
+		BEGIN
+		  UPDATE Players
+		  SET CurrentWallet = CurrentWallet - @PurchasePrice
+		  WHERE Email = @Email;
 
-      SET @CurrentWallet = @CurrentWallet - @PurchasePrice;
-      SET @Success = 1;
-      SET @Message = 'Purchase successful.';
-    END
-    ELSE
-    BEGIN
-      SET @Message = 'Insufficient funds.';
-      ROLLBACK TRANSACTION;
-    END
+		  SET @CurrentWallet = @CurrentWallet - @PurchasePrice;
+		  SET @Success = 1;
+		  SET @Message = 'Purchase successful.';
+		END
+		ELSE
+		BEGIN
+		  SET @Message = 'Insufficient funds.';
+		  ROLLBACK TRANSACTION
+		END
 
-    COMMIT TRANSACTION;
-  END TRY
-  BEGIN CATCH
-    SET @Message = ERROR_MESSAGE();
-    ROLLBACK TRANSACTION;
-  END CATCH;
-END;
-GO
+		COMMIT TRANSACTION
+	  END TRY
+	  BEGIN CATCH
+		SET @Message = ERROR_MESSAGE();
+		ROLLBACK TRANSACTION;
+	  END CATCH;
+	END;
+	GO

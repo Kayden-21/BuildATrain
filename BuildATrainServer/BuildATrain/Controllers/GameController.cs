@@ -37,7 +37,7 @@ namespace BuildATrain.Controllers
 
         [HttpPost]
         [Route("add/train")]
-        public async Task<PostAddTrainResponse> AddTrain(PostAddTrainRequest postAddTrainRequest)
+        public async Task<IActionResult> AddTrain(PostAddTrainRequest postAddTrainRequest)
         {
             var locomotiveSize = postAddTrainRequest.LocomotiveType.ToString();
             var locomotiveType = (int)postAddTrainRequest.LocomotiveType;
@@ -47,22 +47,40 @@ namespace BuildATrain.Controllers
             var numPassengerCars = 1;
             var numCargoCars = 0;
 
-            await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveType, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, email);
+            var isAdded = await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveType, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, email);
 
-            return new PostAddTrainResponse();
+            if (!isAdded)
+            {
+                return NotFound();
+            }
+
+            var game = await GetNewGame(email);
+            var response = new PostAddTrainResponse();
+            response.NewGameModel = game;
+
+            return Ok(value: response);
         }
 
         [HttpPost]
         [Route("add/car")]
-        public async Task<PostAddCarResponse> AddCar(PostAddCarRequest postAddCarRequest)
+        public async Task<IActionResult> AddCar(PostAddCarRequest postAddCarRequest)
         {
             var email = postAddCarRequest.Email;
             var locomotiveName = postAddCarRequest.LocomotiveName;
             var carType = postAddCarRequest.CarType;
 
-            await AddCarAsync(email, locomotiveName, carType);
+            var isAdded = await AddCarAsync(email, locomotiveName, carType);
 
-            return new PostAddCarResponse();
+            if (!isAdded)
+            {
+                return NotFound();
+            }
+
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            return Ok(value: train);
         }
 
         #endregion
@@ -71,11 +89,11 @@ namespace BuildATrain.Controllers
 
         [HttpGet]
         [Route("load")]
-        public async Task<GetLoadGameResponse> LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
+        public async Task<IActionResult> LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
         {
             await _gameManagementService.LoadGame(getLoadGameRequest.Email);
 
-            return new GetLoadGameResponse();
+            return Ok(value: new GetLoadGameResponse());
         }
 
         #endregion
@@ -88,7 +106,7 @@ namespace BuildATrain.Controllers
 
         [HttpDelete]
         [Route("remove/train")]
-        public async Task<DeleteRemoveTrainResponse> RemoveTrain(DeleteRemoveTrainRequest deleteRemoveTrainRequest)
+        public async Task<IActionResult> RemoveTrain(DeleteRemoveTrainRequest deleteRemoveTrainRequest)
         {
             var email = deleteRemoveTrainRequest.Email;
             var locomotiveName = deleteRemoveTrainRequest.LocomotiveName;
@@ -97,23 +115,36 @@ namespace BuildATrain.Controllers
 
             if (!isRemoved)
             {
-                return new DeleteRemoveTrainResponse();
+                return NotFound();
             }
 
-            return new DeleteRemoveTrainResponse();
+            var game = await GetNewGame(email);
+            var response = new DeleteRemoveTrainResponse();
+            response.NewGameModel = game;
+
+            return Ok(value: response);
         }
 
         [HttpDelete]
         [Route("remove/car")]
-        public async Task<DeleteRemoveCarResponse> RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
+        public async Task<IActionResult> RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
         {
             var email = deleteRemoveCarRequest.Email;
             var locomotiveName = deleteRemoveCarRequest.LocomotiveName;
             var carType = deleteRemoveCarRequest.CarType;
 
-            await RemoveCarAsync(email, locomotiveName, carType);
+            var isRemoved = await RemoveCarAsync(email, locomotiveName, carType);
 
-            return new DeleteRemoveCarResponse();
+            if (!isRemoved)
+            {
+                return NotFound();
+            }
+
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            return Ok(value: train);
         }
 
         private async Task<bool> RemoveTrainAsync(string email, string locomotiveName)
@@ -160,6 +191,17 @@ namespace BuildATrain.Controllers
 
             await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, -1, email);
             return true;
+        }
+
+        private async Task<GameModel> GetNewGame(string email)
+        {
+            var trainModels = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+            GameModel gameModel = new GameModel();
+
+            gameModel.Email = email;
+            gameModel.Trains = trainModels.ToList();
+
+            return gameModel;
         }
 
         #endregion
