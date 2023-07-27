@@ -45,7 +45,8 @@ passport.use(
     (accessToken: string, refreshToken: any, profile: Profile, done: (error: any, user?: any, info?: any) => void) => {
       const user = {
         id: profile.id,
-        email: profile.emails ? profile.emails[0].value : null
+        email: profile.emails ? profile.emails[0].value : null,
+        accessToken: accessToken
       };
       done(null, user);
     }
@@ -92,7 +93,7 @@ app.get('/some-route', ensureAuthenticated, (req: express.Request, res: express.
   // This code will only be executed if the user is authenticated.
   // Here we are asserting that req.user will exist
   if(req.session && req.session.passport && req.session.passport.user){
-    console.log(req.session.passport.user.email);
+    console.log(req.session.passport.user.accessToken);
   } 
 });
 
