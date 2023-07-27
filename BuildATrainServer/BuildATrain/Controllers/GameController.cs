@@ -37,22 +37,14 @@ namespace BuildATrain.Controllers
         [Route("add/train")]
         public async Task<IActionResult> AddTrain(PostAddTrainRequest postAddTrainRequest)
         {
-            var locomotiveType = postAddTrainRequest.LocomotiveType;
+            var locomotiveSize = postAddTrainRequest.LocomotiveType.ToString();
+            var username = postAddTrainRequest.Username;
             var locomotiveName = postAddTrainRequest.LocomotiveName;
-            var passengerCarCount = 0;
-            var cargoCarCount = 0;
-            var fuelCarCount = 0;
+            var numFuelCars = 0;
+            var numPassengerCars = 0;
+            var numCargoCars = 0;
 
-            var newTrain = new TrainModel
-        {
-                LocomotiveType = locomotiveType,
-                LocomotiveName = locomotiveName,
-                PassengerCarCount = passengerCarCount,
-                CargoCarCount = cargoCarCount,
-                FuelCarCount = fuelCarCount
-            };
-
-            await _trainRepository.AddAsync(newTrain);
+            await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, username);
 
             return Ok();
         }
@@ -109,13 +101,20 @@ namespace BuildATrain.Controllers
 
         private async Task<bool> RemoveTrainAsync(string username, string locomotiveName)
         {
-            var train = await _trainRepository.GetTrainByUsernameAndLocomotiveNameAsync(username, locomotiveName);
+            // Call the repository method to get the trains by username
+            var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
+
+            // Find the train with the given locomotive name from the retrieved trains
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
             if (train == null)
             {
                 return false;
             }
 
+            // Call the repository method to remove the train
             await _trainRepository.DeleteAsync(train);
+
             return true;
         }
 

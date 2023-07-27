@@ -37,6 +37,7 @@ CREATE TABLE PlayerTrains (
   TrainId INT PRIMARY KEY,
   PlayerId INT,
   LocomotiveTypeId INT,
+  LocomotiveName VARCHAR(50),
   NumFuelCars INT,
   NumPassengerCars INT,
   NumCargoCars INT,
@@ -52,6 +53,7 @@ Stored Procs
 
 CREATE PROCEDURE InsertPlayerTrain
     @LocomotiveSize VARCHAR(255),
+	@LocomotiveName VARCHAR(50),
     @NumFuelCars INT,
     @NumPassengerCars INT,
     @NumCargoCars INT,
@@ -87,6 +89,20 @@ BEGIN
   WHERE p.Email = @Email;
 END;
 GO
+
+CREATE PROCEDURE GetPlayerTrainsByUsername
+  @Username NVARCHAR(50)
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, l.LocomotiveSize
+  FROM PlayerTrains pt
+  JOIN Players p ON p.Id = pt.PlayerId
+  JOIN Locomotives l ON l.Id = pt.LocomotiveTypeId
+  WHERE p.Username = @Username;
+END;
+GO;
 
 /* GetPlayerDetailsByEmail takes user email, and returns the player's username and their current wallet */
 CREATE PROCEDURE GetPlayerDetailsByEmail

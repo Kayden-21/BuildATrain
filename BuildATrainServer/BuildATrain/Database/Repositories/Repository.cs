@@ -46,34 +46,29 @@ namespace BuildATrain.Database.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Attributes> GetAttributesById(int id)
+        public async Task<IEnumerable<TrainModel>> GetPlayerTrainsByUsernameAsync(string username)
         {
-            var idParameter = new SqlParameter("@Id", SqlDbType.Int) { Value = id };
-
-            var entities = await _context.Set<T>()
-                .FromSqlRaw("EXEC GetAttributesById @Id", idParameter)
+            var usernameParam = new SqlParameter("@Username", SqlDbType.NVarChar) { Value = username };
+            var result = await _context.Set<TrainModel>()
+                .FromSqlRaw("EXEC GetPlayerTrainsByUsername @Username", usernameParam)
                 .ToListAsync();
 
-            return entities.FirstOrDefault();
+            return result;
         }
 
-        public async Task<TrainModel?> GetTrainByUsernameAndLocomotiveNameAsync(string username, string locomotiveName)
-        {
-            return await _entitySet
-            .OfType<TrainModel>()
-                .FirstOrDefaultAsync(t => t.Username == username && t.LocomotiveName == locomotiveName);
-        }
 
-        public async Task InsertPlayerTrainAsync(string locomotiveSize, int numFuelCars, int numPassengerCars, int numCargoCars, string username)
+
+        public async Task InsertPlayerTrainAsync(string locomotiveSize, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string username)
         {
             var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
+            var locomotiveNameParam = new SqlParameter("@LocomotiveName", SqlDbType.VarChar) { Value = locomotiveName };
             var numFuelCarsParam = new SqlParameter("@NumFuelCars", SqlDbType.Int) { Value = numFuelCars };
             var numPassengerCarsParam = new SqlParameter("@NumPassengerCars", SqlDbType.Int) { Value = numPassengerCars };
             var numCargoCarsParam = new SqlParameter("@NumCargoCars", SqlDbType.Int) { Value = numCargoCars };
             var usernameParam = new SqlParameter("@Username", SqlDbType.VarChar) { Value = username };
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Username",
-                locomotiveSizeParam, numFuelCarsParam, numPassengerCarsParam, numCargoCarsParam, usernameParam);
+            await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Username",
+                locomotiveSizeParam, locomotiveNameParam, numFuelCarsParam, numPassengerCarsParam, numCargoCarsParam, usernameParam);
         }
     }
 }
