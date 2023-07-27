@@ -62,7 +62,7 @@ CREATE PROCEDURE InsertPlayerTrain
     @NumFuelCars INT,
     @NumPassengerCars INT,
     @NumCargoCars INT,
-    @Username VARCHAR(50)
+    @Email NVARCHAR(255)
 AS
 BEGIN
     DECLARE @LocomotiveId INT
@@ -73,7 +73,7 @@ BEGIN
 
     SET @LocomotiveId = SCOPE_IDENTITY();
 
-    SELECT @PlayerId = Id FROM Players WHERE Username = @Username;
+    SELECT @PlayerId = Id FROM Players WHERE Email = @Email;
 
     INSERT INTO PlayerTrains (TrainId, PlayerId, LocomotiveTypeId, LocomotiveName, NumFuelCars, NumPassengerCars, NumCargoCars)
     VALUES (@LocomotiveId, @PlayerId, @LocomotiveId, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars);
@@ -108,7 +108,7 @@ END;
 GO
 
 CREATE PROCEDURE GetAndRemovePlayerTrains
-  @Email NVARCHAR(50),
+  @Email NVARCHAR(255),
   @LocomotiveName VARCHAR(50)
 AS
 BEGIN
@@ -162,7 +162,7 @@ END;
 GO
 
 CREATE PROCEDURE GetCurrentWalletByEmail
-  @Email INT
+  @Email NVARCHAR(255)
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -175,7 +175,7 @@ GO
 
 /* PerformPurchaseByAttributeId takes playerId and attributeId, and returns the new wallet, a success bit and a message */
 CREATE PROCEDURE PerformPurchaseByAttributeId
-  @Email VARCHAR(50),
+  @Email NVARCHAR(255),
   @AttributeId INT,
   @CurrentWallet DECIMAL(18,2) OUTPUT,
   @Success BIT OUTPUT,

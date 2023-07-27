@@ -85,7 +85,7 @@ namespace BuildATrain.Database.Repositories
 
         public async Task<Attributes> GetAttributesByAttributeIdAsync(int attributeId)
         {
-            var attributeIdParam = new SqlParameter("@AttributeId", SqlDbType.NVarChar) { Value = attributeId };
+            var attributeIdParam = new SqlParameter("@AttributeId", SqlDbType.Int) { Value = attributeId };
             var result = await _context.Set<Attributes>()
                 .FromSqlRaw("EXEC GetAttributesById @AttributeId", attributeIdParam)
                 .FirstAsync();
@@ -134,7 +134,7 @@ namespace BuildATrain.Database.Repositories
         {
             var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar) { Value = email };
             var result = await _context.Set<WalletModel>()
-                .FromSqlRaw("EXEC GetCurrentWalletByEmail @Email", emailParam)
+                .FromSqlRaw("EXEC GetCurrentWalletByEmail '@Email'", emailParam)
                 .FirstAsync();
 
             return result;
