@@ -70,7 +70,7 @@ public class Program
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddSingleton< GameManagementService>();
+        services.AddSingleton<GameManagementService>();
 
         services.AddDbContext<DatabaseContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("BuildATrain")));
