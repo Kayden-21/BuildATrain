@@ -4,20 +4,19 @@ GO
 -- Insert data into the Attributes table
 INSERT INTO Attributes (Id, AttributeName, CarCapacity, FuelUse, FuelAdded, PurchasePrice)
 VALUES
-  (1, 'Power Express', 200, 150, 50, 1000.00),
-  (2, 'Speed Master', 150, 100, 30, 800.00),
-  (3, 'Cargo Hauler', 300, 200, 80, 1500.00),
-  (4, 'Super Turbo', 250, 180, 60, 1200.00),
-  (5, 'Mega Hauler', 350, 250, 100, 1800.00);
+  (1, 'Small', 200, 150, 50, 1000.00),
+  (2, 'Medium', 150, 100, 30, 800.00),
+  (3, 'Large', 300, 200, 80, 1500.00),
+  (4, 'CargoCar', 250, 180, 60, 1200.00),
+  (5, 'PassengerCar', 350, 250, 100, 1800.00),
+  (6, 'FuelCar', 350, 250, 100, 1800.00);
   
 -- Insert data into the Locomotives table
 INSERT INTO Locomotives (Id, AttributeId, LocomotiveSize)
 VALUES
-  (1, 1, 'Medium'),
-  (2, 2, 'Small'),
-  (3, 3, 'Large'),
-  (4, 4, 'Large'),
-  (5, 5, 'Medium');
+  (1, 1, 'Small'),
+  (2, 2, 'Medium'),
+  (3, 3, 'Large');
   
 -- Insert data into the Players table
 INSERT INTO Players (Id, Username, Email, CurrentWallet)
