@@ -132,20 +132,14 @@ namespace BuildATrain.Database.Repositories
 
         public async Task<WalletModel> GetCurrentWalletByEmail(string email)
         {
-            try
-            {
-                var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar) { Value = email };
-                var result = await _context.Set<WalletModel>()
-                    .FromSqlRaw("EXEC GetCurrentWalletByEmail @Email", emailParam)
-                    .FirstOrDefaultAsync();
+            var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar) { Value = email };
+            var result = await _context.Set<WalletModel>()
+                .FromSqlRaw("EXEC GetCurrentWalletByEmail @Email", emailParam)
+                .ToListAsync();
 
-                return result;
-            }
-            catch(Exception ex)
-            {
-                    throw ex;
-            }
+            return result.FirstOrDefault();
         }
+
         public async Task<bool> PreformPurchase(string email, int attributeId, decimal currentWallet)
         {
             var emailParam = new SqlParameter("@Email", SqlDbType.VarChar) { Value = email };
