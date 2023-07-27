@@ -155,7 +155,8 @@ namespace BuildATrain.Services
                             income.ToString()
                         ));
 
-                        await SendSSEEventAsync(clientGuidMapping.First(c => c.Value == gameModel.Username).Key, new UpdateGameEvent { Response = retList });
+                        //await SendSSEEventAsync(clientGuidMapping.First(c => c.Value == gameModel.Email).Key, new UpdateGameEvent { Response = retList });
+                        await SendSSEEventAsync(clientGuidMapping.First(c => c.Value == gameModel.Email).Key, new List<string> { income.ToString() });
                     }
                     catch (Exception e)
                     {
@@ -173,9 +174,9 @@ namespace BuildATrain.Services
 
         protected override void HandleClientConnected(object? sender, ServerSentEventsClientConnectedArgs e)
         {
-            if (e.Request.Query.Any(q => q.Key == "username"))
+            if (e.Request.Query.Any(q => q.Key == "email"))
             {
-                clientGuidMapping.Add(e.Client.Id, e.Request.Query.First(q => q.Key == "username").Value);
+                clientGuidMapping.Add(e.Client.Id, e.Request.Query.First(q => q.Key == "email").Value);
             }
             else
             {
