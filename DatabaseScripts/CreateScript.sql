@@ -1,6 +1,9 @@
 USE master;
 GO
 
+DROP DATABASE BuildATrainDb
+GO
+
 CREATE DATABASE BuildATrainDb
 GO
 
@@ -37,6 +40,7 @@ CREATE TABLE PlayerTrains (
   TrainId INT PRIMARY KEY,
   PlayerId INT,
   LocomotiveTypeId INT,
+  LocomotiveName VARCHAR(50),
   NumFuelCars INT,
   NumPassengerCars INT,
   NumCargoCars INT,
@@ -50,6 +54,30 @@ GO
 Stored Procs
 */
 
+CREATE PROCEDURE InsertPlayerTrain
+    @LocomotiveSize VARCHAR(255),
+	@LocomotiveName VARCHAR(50),
+    @NumFuelCars INT,
+    @NumPassengerCars INT,
+    @NumCargoCars INT,
+    @Username VARCHAR(50)
+AS
+BEGIN
+    DECLARE @LocomotiveId INT
+    DECLARE @PlayerId INT
+
+    INSERT INTO Locomotives (AttributeId, LocomotiveSize)
+    VALUES (2, @LocomotiveSize);
+
+    SET @LocomotiveId = SCOPE_IDENTITY();
+
+    SELECT @PlayerId = Id FROM Players WHERE Username = @Username;
+
+    INSERT INTO PlayerTrains (TrainId, PlayerId, LocomotiveTypeId, LocomotiveName, NumFuelCars, NumPassengerCars, NumCargoCars)
+    VALUES (@LocomotiveId, @PlayerId, @LocomotiveId, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars);
+END;
+GO
+
 /* GetPlayerTrainsByEmail takes user email, and returns the player's train setup */
 CREATE PROCEDURE GetPlayerTrainsByEmail
   @Email NVARCHAR(255)
@@ -62,6 +90,48 @@ BEGIN
   JOIN Players p ON p.Id = pt.PlayerId
   JOIN Locomotives l ON l.Id = pt.LocomotiveTypeId
   WHERE p.Email = @Email;
+END;
+GO
+
+CREATE PROCEDURE GetPlayerTrainsByUsername
+  @Username NVARCHAR(50)
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, l.LocomotiveSize
+  FROM PlayerTrains pt
+  JOIN Players p ON p.Id = pt.PlayerId
+  JOIN Locomotives l ON l.Id = pt.LocomotiveTypeId
+  WHERE p.Username = @Username;
+END;
+GO
+
+CREATE PROCEDURE GetAndRemovePlayerTrains
+  @Username NVARCHAR(50),
+  @LocomotiveName VARCHAR(50)
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  CREATE TABLE #TempPlayerTrainsToRemove (PlayerTrainId INT PRIMARY KEY);
+
+  INSERT INTO #TempPlayerTrainsToRemove (PlayerTrainId)
+  SELECT pt.TrainId
+  FROM PlayerTrains pt
+  JOIN Players p ON p.Id = pt.PlayerId
+  WHERE p.Username = @Username AND pt.LocomotiveName = @LocomotiveName;
+
+  DELETE pt
+  FROM PlayerTrains pt
+  WHERE pt.TrainId IN (SELECT PlayerTrainId FROM #TempPlayerTrainsToRemove);
+
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, pt.LocomotiveName
+  FROM PlayerTrains pt
+  JOIN Players p ON p.Id = pt.PlayerId
+  WHERE p.Username = @Username;
+
+  DROP TABLE #TempPlayerTrainsToRemove;
 END;
 GO
 
