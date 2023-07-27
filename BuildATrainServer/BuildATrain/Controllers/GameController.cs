@@ -101,10 +101,8 @@ namespace BuildATrain.Controllers
 
         private async Task<bool> RemoveTrainAsync(string username, string locomotiveName)
         {
-            // Call the repository method to get the trains by username
             var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
 
-            // Find the train with the given locomotive name from the retrieved trains
             var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
 
             if (train == null)
@@ -112,12 +110,20 @@ namespace BuildATrain.Controllers
                 return false;
             }
 
-            // Call the repository method to remove the train
             await _trainRepository.DeleteAsync(train);
 
             return true;
         }
 
+        private async Task<bool> AddCarAsync()
+        {
+            return true;
+        }
+
+        private async Task<bool> RemoveCarAsync()
+        {
+            return true;
+        }
         #endregion
     }
 }
