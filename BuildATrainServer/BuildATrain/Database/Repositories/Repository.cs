@@ -60,10 +60,9 @@ namespace BuildATrain.Database.Repositories
 
         public async Task<bool> InsertPlayerTrainAsync(string locomotiveSize, int locomotiveType, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string email)
         {
-
             var currentWallet = GetCurrentWalletByEmail(email).Result.CurrentWallet;
 
-            var isSuccess = await PreformPurchase(email, locomotiveType, currentWallet);
+            bool isSuccess = await PreformPurchase(email, locomotiveType, currentWallet);
 
             if (isSuccess)
             {
@@ -94,35 +93,43 @@ namespace BuildATrain.Database.Repositories
             return result;
         }
 
-        public async Task<bool> UpdateCarCountAsync(int trainId, CarType carType, int count)
+        public async Task<bool> UpdateCarCountAsync(int trainId, CarType carType, int count, string email)
         {
-            var train = await _entitySet
+            var currentWallet = GetCurrentWalletByEmail(email).Result.CurrentWallet;
+
+            bool isSuccess = await PreformPurchase(email, (int)carType, currentWallet);
+
+            if (isSuccess)
+            {
+                var train = await _entitySet
                 .OfType<TrainModel>()
                 .FirstOrDefaultAsync(t => t.TrainId == trainId);
 
-            if (train == null)
-            {
-                return false;
-            }
-
-            switch (carType)
-            {
-                case CarType.Passenger:
-                    train.NumPassengerCars += count;
-                    break;
-                case CarType.Cargo:
-                    train.NumCargoCars += count;
-                    break;
-                case CarType.Fuel:
-                    train.NumFuelCars += count;
-                    break;
-                default:
+                if (train == null)
+                {
                     return false;
-            }
+                }
 
-            await _context.SaveChangesAsync();
-            return true;
+                switch (carType)
+                {
+                    case CarType.Passenger:
+                        train.NumPassengerCars += count;
+                        break;
+                    case CarType.Cargo:
+                        train.NumCargoCars += count;
+                        break;
+                    case CarType.Fuel:
+                        train.NumFuelCars += count;
+                        break;
+                    default:
+                        return false;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+                return true;
         }
+
         public async Task<WalletModel> GetCurrentWalletByEmail(string email)
         {
             var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar) { Value = email };

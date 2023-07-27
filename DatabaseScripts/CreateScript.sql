@@ -167,7 +167,7 @@ AS
 BEGIN
   SET NOCOUNT ON;
 
-  SELECT CurrentWallet
+  SELECT Id, CurrentWallet
   FROM Players
   WHERE Email = @Email;
 END;

@@ -40,7 +40,7 @@ namespace BuildATrain.Controllers
         public async Task<PostAddTrainResponse> AddTrain(PostAddTrainRequest postAddTrainRequest)
         {
             var locomotiveSize = postAddTrainRequest.LocomotiveType.ToString();
-            var locomotiveType = postAddTrainRequest.LocomotiveType;
+            var locomotiveType = (int)postAddTrainRequest.LocomotiveType;
             var email = postAddTrainRequest.Email;
             var locomotiveName = postAddTrainRequest.LocomotiveName;
             var numFuelCars = 0;
@@ -56,11 +56,11 @@ namespace BuildATrain.Controllers
         [Route("add/car")]
         public async Task<PostAddCarResponse> AddCar(PostAddCarRequest postAddCarRequest)
         {
-            var username = postAddCarRequest.Email;
+            var email = postAddCarRequest.Email;
             var locomotiveName = postAddCarRequest.LocomotiveName;
             var carType = postAddCarRequest.CarType;
 
-            await AddCarAsync(username, locomotiveName, carType);
+            await AddCarAsync(email, locomotiveName, carType);
 
             return new PostAddCarResponse();
         }
@@ -120,14 +120,14 @@ namespace BuildATrain.Controllers
         {
             var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
 
-            //var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
 
-            //if (train == null)
-            //{
-            //    return false;
-            //}
+            if (train == null)
+            {
+                return false;
+            }
 
-            //await _trainRepository.DeleteAsync(train);
+            await _trainRepository.DeleteAsync(train);
 
             return true;
         }
@@ -143,7 +143,7 @@ namespace BuildATrain.Controllers
                 return false;
             }
 
-            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, 1);
+            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, 1, email);
             return true;
         }
 
@@ -158,7 +158,7 @@ namespace BuildATrain.Controllers
                 return false;
             }
 
-            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, -1);
+            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, -1, email);
             return true;
         }
 
