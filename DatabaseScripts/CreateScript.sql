@@ -174,46 +174,46 @@ END;
 GO
 
 /* PerformPurchaseByAttributeId takes playerId and attributeId, and returns the new wallet, a success bit and a message */
-CREATE PROCEDURE PerformPurchaseByAttributeId
-  @Email NVARCHAR(255),
-  @AttributeId INT,
-  @CurrentWallet DECIMAL(18,2) OUTPUT,
-  @Success BIT OUTPUT,
-  @Message NVARCHAR(255) OUTPUT
-AS
-BEGIN
-  SET NOCOUNT ON;
-  SET @Success = 0;
+	CREATE PROCEDURE PerformPurchaseByAttributeId
+	  @Email NVARCHAR(255),
+	  @AttributeId INT,
+	  @CurrentWallet DECIMAL(18,2) OUTPUT,
+	  @Success BIT OUTPUT,
+	  @Message NVARCHAR(255) OUTPUT
+	AS
+	BEGIN
+	  SET NOCOUNT ON;
+	  SET @Success = 0;
 
-  BEGIN TRANSACTION
+	  BEGIN TRANSACTION
 
-  BEGIN TRY
-    DECLARE @PurchasePrice DECIMAL(18,2);
-    SELECT @PurchasePrice = PurchasePrice
-    FROM Attributes
-    WHERE Id = @AttributeId;
+	  BEGIN TRY
+		DECLARE @PurchasePrice DECIMAL(18,2);
+		SELECT @PurchasePrice = PurchasePrice
+		FROM Attributes
+		WHERE Id = @AttributeId;
 
-    IF @CurrentWallet >= @PurchasePrice
-    BEGIN
-      UPDATE Players
-      SET CurrentWallet = CurrentWallet - @PurchasePrice
-      WHERE Email = @Email;
+		IF @CurrentWallet >= @PurchasePrice
+		BEGIN
+		  UPDATE Players
+		  SET CurrentWallet = CurrentWallet - @PurchasePrice
+		  WHERE Email = @Email;
 
-      SET @CurrentWallet = @CurrentWallet - @PurchasePrice;
-      SET @Success = 1;
-      SET @Message = 'Purchase successful.';
-    END
-    ELSE
-    BEGIN
-      SET @Message = 'Insufficient funds.';
-      ROLLBACK TRANSACTION
-    END
+		  SET @CurrentWallet = @CurrentWallet - @PurchasePrice;
+		  SET @Success = 1;
+		  SET @Message = 'Purchase successful.';
+		END
+		ELSE
+		BEGIN
+		  SET @Message = 'Insufficient funds.';
+		  ROLLBACK TRANSACTION
+		END
 
-    COMMIT TRANSACTION
-  END TRY
-  BEGIN CATCH
-    SET @Message = ERROR_MESSAGE();
-    ROLLBACK TRANSACTION;
-  END CATCH;
-END;
-GO
+		COMMIT TRANSACTION
+	  END TRY
+	  BEGIN CATCH
+		SET @Message = ERROR_MESSAGE();
+		ROLLBACK TRANSACTION;
+	  END CATCH;
+	END;
+	GO

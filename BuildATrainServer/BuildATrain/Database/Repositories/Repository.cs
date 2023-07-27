@@ -67,14 +67,14 @@ namespace BuildATrain.Database.Repositories
             if (isSuccess)
             {
                 var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
-                var locomotiveTypeParam = new SqlParameter("@LocomotiveType", SqlDbType.VarChar) { Value = locomotiveType };
+                var locomotiveTypeParam = new SqlParameter("@LocomotiveTypeId", SqlDbType.VarChar) { Value = locomotiveType };
                 var locomotiveNameParam = new SqlParameter("@LocomotiveName", SqlDbType.VarChar) { Value = locomotiveName };
                 var numFuelCarsParam = new SqlParameter("@NumFuelCars", SqlDbType.Int) { Value = numFuelCars };
                 var numPassengerCarsParam = new SqlParameter("@NumPassengerCars", SqlDbType.Int) { Value = numPassengerCars };
                 var numCargoCarsParam = new SqlParameter("@NumCargoCars", SqlDbType.Int) { Value = numCargoCars };
                 var emailParam = new SqlParameter("@Email", SqlDbType.VarChar) { Value = email };
 
-                await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveType @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Email",
+                await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveTypeId, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Email",
                     locomotiveSizeParam, locomotiveTypeParam, locomotiveNameParam, numFuelCarsParam, numPassengerCarsParam, numCargoCarsParam, emailParam);
 
                 return true;
