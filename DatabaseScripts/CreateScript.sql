@@ -11,7 +11,7 @@ USE BuildATrainDb
 GO
 
 CREATE TABLE Attributes (
-  Id INT PRIMARY KEY,
+  Id INT IDENTITY(1,1) PRIMARY KEY,
   AttributeName VARCHAR(255),
   CarCapacity INT,
   FuelUse INT,
@@ -23,7 +23,7 @@ CREATE TABLE Attributes (
 GO
 
 CREATE TABLE Locomotives (
-  Id INT PRIMARY KEY,
+  Id INT IDENTITY(1,1) PRIMARY KEY,
   AttributeId INT,
   LocomotiveSize VARCHAR(255),
   FOREIGN KEY (AttributeId) REFERENCES Attributes(Id)
@@ -31,7 +31,7 @@ CREATE TABLE Locomotives (
 GO
 
 CREATE TABLE Players (
-  Id INT PRIMARY KEY,
+  Id INT IDENTITY(1,1) PRIMARY KEY,
   Username VARCHAR(50),
   Email NVARCHAR(255),
   CurrentWallet DECIMAL(18,2)
@@ -39,7 +39,7 @@ CREATE TABLE Players (
 GO
 
 CREATE TABLE PlayerTrains (
-  TrainId INT PRIMARY KEY,
+  TrainId INT IDENTITY(1,1) PRIMARY KEY,
   PlayerId INT,
   LocomotiveTypeId INT,
   LocomotiveName VARCHAR(50),
