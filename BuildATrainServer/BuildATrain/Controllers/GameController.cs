@@ -2,6 +2,7 @@
 using BuildATrain.Database.Repositories;
 using BuildATrain.Models.Game;
 using BuildATrain.Models.Http.Request;
+using BuildATrain.Models.Http.Response;
 using BuildATrain.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,7 @@ namespace BuildATrain.Controllers
 
         [HttpPost]
         [Route("add/train")]
-        public async Task<IActionResult> AddTrain(PostAddTrainRequest postAddTrainRequest)
+        public async Task<PostAddTrainResponse> AddTrain(PostAddTrainRequest postAddTrainRequest)
         {
             var locomotiveSize = postAddTrainRequest.LocomotiveType.ToString();
             var username = postAddTrainRequest.Email;
@@ -47,12 +48,12 @@ namespace BuildATrain.Controllers
 
             await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, username);
 
-            return Ok();
+            return new PostAddTrainResponse();
         }
 
         [HttpPost]
         [Route("add/car")]
-        public async Task<IActionResult> AddCar(PostAddCarRequest postAddCarRequest)
+        public async Task<PostAddCarResponse> AddCar(PostAddCarRequest postAddCarRequest)
         {
             var username = postAddCarRequest.Email;
             var locomotiveName = postAddCarRequest.LocomotiveName;
@@ -60,7 +61,7 @@ namespace BuildATrain.Controllers
 
             await AddCarAsync(username, locomotiveName, carType);
 
-            return Ok();
+            return new PostAddCarResponse();
         }
 
         #endregion
@@ -69,9 +70,11 @@ namespace BuildATrain.Controllers
 
         [HttpGet]
         [Route("load")]
-        public async Task LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
+        public async Task<GetLoadGameResponse> LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
         {
             await _gameManagementService.LoadGame(getLoadGameRequest.Email);
+
+            return new GetLoadGameResponse();
         }
 
         #endregion
@@ -84,7 +87,7 @@ namespace BuildATrain.Controllers
 
         [HttpDelete]
         [Route("remove/train")]
-        public async Task<IActionResult> RemoveTrain(DeleteRemoveTrainRequest deleteRemoveTrainRequest)
+        public async Task<DeleteRemoveTrainResponse> RemoveTrain(DeleteRemoveTrainRequest deleteRemoveTrainRequest)
         {
             var email = deleteRemoveTrainRequest.Email;
             var locomotiveName = deleteRemoveTrainRequest.LocomotiveName;
@@ -93,15 +96,15 @@ namespace BuildATrain.Controllers
 
             if (!isRemoved)
             {
-                return NotFound();
-        }
+                return new DeleteRemoveTrainResponse();
+            }
 
-            return NoContent();
+            return new DeleteRemoveTrainResponse();
         }
 
         [HttpDelete]
         [Route("remove/car")]
-        public async Task<IActionResult> RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
+        public async Task<DeleteRemoveCarResponse> RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
         {
             var email = deleteRemoveCarRequest.Email;
             var locomotiveName = deleteRemoveCarRequest.LocomotiveName;
@@ -109,7 +112,7 @@ namespace BuildATrain.Controllers
 
             await RemoveCarAsync(email, locomotiveName, carType);
 
-            return Ok();
+            return new DeleteRemoveCarResponse();
         }
 
         private async Task<bool> RemoveTrainAsync(string email, string locomotiveName)
