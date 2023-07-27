@@ -4,6 +4,7 @@ using BuildATrain.Models.Game;
 using BuildATrain.Models.Http.Request;
 using BuildATrain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace BuildATrain.Controllers
@@ -51,8 +52,11 @@ namespace BuildATrain.Controllers
 
         [HttpPost]
         [Route("add/car")]
-        public void AddCar(PostAddCarRequest postAddCarRequest)
+        public async Task<bool> AddCar(PostAddCarRequest postAddCarRequest)
         {
+            var username = postAddCarRequest.Username;
+            var locomotiveName = postAddCarRequest.LocomotiveName;
+            var carType = postAddCarRequest.CarType;
 
         }
 
@@ -117,7 +121,7 @@ namespace BuildATrain.Controllers
 
         private async Task<bool> AddCarAsync()
         {
-            return true;
+            
         }
 
         private async Task<bool> RemoveCarAsync()

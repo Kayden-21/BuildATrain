@@ -101,10 +101,9 @@ AS
 BEGIN
   SET NOCOUNT ON;
 
-  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, l.LocomotiveSize
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, pt.LocomotiveName, pt.LocomotiveTypeId
   FROM PlayerTrains pt
   JOIN Players p ON p.Id = pt.PlayerId
-  JOIN Locomotives l ON l.Id = pt.LocomotiveTypeId
   WHERE p.Username = @Username;
 END;
 GO
