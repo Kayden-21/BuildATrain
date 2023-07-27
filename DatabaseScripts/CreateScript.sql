@@ -87,10 +87,9 @@ AS
 BEGIN
   SET NOCOUNT ON;
 
-  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, l.LocomotiveSize
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, pt.LocomotiveName, pt.LocomotiveTypeId
   FROM PlayerTrains pt
   JOIN Players p ON p.Id = pt.PlayerId
-  JOIN Locomotives l ON l.Id = pt.LocomotiveTypeId
   WHERE p.Email = @Email;
 END;
 GO
@@ -162,9 +161,21 @@ BEGIN
 END;
 GO
 
+CREATE PROCEDURE GetCurrentWalletByUsername
+  @Username INT
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  SELECT CurrentWallet
+  FROM Players
+  WHERE Username = @Username;
+END;
+GO
+
 /* PerformPurchaseByAttributeId takes playerId and attributeId, and returns the new wallet, a success bit and a message */
 CREATE PROCEDURE PerformPurchaseByAttributeId
-  @PlayerId INT,
+  @Email VARCHAR(50),
   @AttributeId INT,
   @CurrentWallet DECIMAL(18,2) OUTPUT,
   @Success BIT OUTPUT,
@@ -182,15 +193,11 @@ BEGIN
     FROM Attributes
     WHERE Id = @AttributeId;
 
-    SELECT @CurrentWallet = CurrentWallet
-    FROM Players
-    WHERE Id = @PlayerId;
-
     IF @CurrentWallet >= @PurchasePrice
     BEGIN
       UPDATE Players
       SET CurrentWallet = CurrentWallet - @PurchasePrice
-      WHERE Id = @PlayerId;
+      WHERE Email = @Email;
 
       SET @CurrentWallet = @CurrentWallet - @PurchasePrice;
       SET @Success = 1;

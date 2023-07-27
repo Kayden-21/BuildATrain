@@ -12,7 +12,7 @@ namespace BuildATrain.Database.Repositories
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
-        Task<IEnumerable<TrainModel>> GetPlayerTrainsByUsernameAsync(string username);
+        Task<IEnumerable<TrainModel>> GetPlayerTrainsByEmailAsync(string email);
         Task InsertPlayerTrainAsync(string locomotiveSize, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string username);
         Task<Attributes> GetAttributesByAttributeIdAsync(string attributeId);
         Task<bool> UpdateCarCountAsync(int trainId, CarType carType, int count);

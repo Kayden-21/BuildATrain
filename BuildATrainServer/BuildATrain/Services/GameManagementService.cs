@@ -146,7 +146,7 @@ namespace BuildATrain.Services
 
                         }
 
-                        await SendSSEEventAsync(clientGuidMapping.First(c => c.Value == gameModel.Username).Key, new List<string> { income.ToString() });
+                        await SendSSEEventAsync(clientGuidMapping.First(c => c.Value == gameModel.Email).Key, new List<string> { income.ToString() });
                     }
                     catch (Exception e)
                     {
