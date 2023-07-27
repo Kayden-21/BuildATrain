@@ -161,15 +161,15 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE GetCurrentWalletByUsername
-  @Username INT
+CREATE PROCEDURE GetCurrentWalletByEmail
+  @Email INT
 AS
 BEGIN
   SET NOCOUNT ON;
 
   SELECT CurrentWallet
   FROM Players
-  WHERE Username = @Username;
+  WHERE Email = @Email;
 END;
 GO
 

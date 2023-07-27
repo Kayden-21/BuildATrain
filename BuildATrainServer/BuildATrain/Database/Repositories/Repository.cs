@@ -59,6 +59,7 @@ namespace BuildATrain.Database.Repositories
 
         public async Task InsertPlayerTrainAsync(string locomotiveSize, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string username)
         {
+            // -> 1 -> carry on
             var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
             var locomotiveNameParam = new SqlParameter("@LocomotiveName", SqlDbType.VarChar) { Value = locomotiveName };
             var numFuelCarsParam = new SqlParameter("@NumFuelCars", SqlDbType.Int) { Value = numFuelCars };
@@ -108,6 +109,29 @@ namespace BuildATrain.Database.Repositories
 
             await _context.SaveChangesAsync();
             return true;
+        }
+        public async Task GetCurrentWalletByEmail(string email)
+        {
+
+        }
+
+        public async Task<bool> PreformPurchase(string email, int attributeId, decimal currentWallet)
+        {
+            var emailParam = new SqlParameter("@Email", SqlDbType.VarChar) { Value = email };
+            var attributeIdParam = new SqlParameter("@AttributeId", SqlDbType.Int) { Value = attributeId };
+            var currentWalletParam = new SqlParameter("@CurrentWallet", SqlDbType.Decimal) { Value = currentWallet };
+            currentWalletParam.Precision = 18;
+            currentWalletParam.Scale = 2;
+
+            var successParam = new SqlParameter("@Success", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            var messageParam = new SqlParameter("@Message", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
+
+            await _context.Database.ExecuteSqlRawAsync("EXEC PerformPurchaseByAttributeId @Email, @AttributeId, @CurrentWallet OUTPUT, @Success OUTPUT, @Message OUTPUT",
+                emailParam, attributeIdParam, currentWalletParam, successParam, messageParam);
+
+            var isSuccess = Convert.ToBoolean(successParam.Value);
+
+            return isSuccess;
         }
     }
 }
