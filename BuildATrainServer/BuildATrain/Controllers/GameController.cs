@@ -41,7 +41,7 @@ namespace BuildATrain.Controllers
             var username = postAddTrainRequest.Username;
             var locomotiveName = postAddTrainRequest.LocomotiveName;
             var numFuelCars = 0;
-            var numPassengerCars = 0;
+            var numPassengerCars = 1;
             var numCargoCars = 0;
 
             await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, username);

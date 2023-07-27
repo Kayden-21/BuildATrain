@@ -16,7 +16,9 @@ CREATE TABLE Attributes (
   CarCapacity INT,
   FuelUse INT,
   FuelAdded INT,
-  PurchasePrice DECIMAL(18,2)
+  PurchasePrice DECIMAL(18,2),
+  IncomeMinRange INT,
+  IncomeMaxRange INT
 );
 GO
 

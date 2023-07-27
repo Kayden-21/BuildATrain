@@ -2,14 +2,14 @@ USE BuildATrainDb
 GO
 
 -- Insert data into the Attributes table
-INSERT INTO Attributes (Id, AttributeName, CarCapacity, FuelUse, FuelAdded, PurchasePrice)
+INSERT INTO Attributes (Id, AttributeName, CarCapacity, FuelUse, FuelAdded, PurchasePrice, IncomeMinRange, IncomeMaxRange)
 VALUES
-  (1, 'Small', 200, 150, 50, 1000.00),
-  (2, 'Medium', 150, 100, 30, 800.00),
-  (3, 'Large', 300, 200, 80, 1500.00),
-  (4, 'CargoCar', 250, 180, 60, 1200.00),
-  (5, 'PassengerCar', 350, 250, 100, 1800.00),
-  (6, 'FuelCar', 350, 250, 100, 1800.00);
+  (1, 'Small', 200, 150, 50, 10000.00, 0, 0),
+  (2, 'Medium', 150, 100, 30, 20000.00, 0, 0),
+  (3, 'Large', 300, 200, 80, 30000.00, 0, 0),
+  (4, 'CargoCar', 250, 180, 60, 5000.00, 0, 1000),
+  (5, 'PassengerCar', 350, 250, 1500, 1800.00, 50, 200),
+  (6, 'FuelCar', 0, 250, 100, 4000.00, 0, 0);
   
 -- Insert data into the Locomotives table
 INSERT INTO Locomotives (Id, AttributeId, LocomotiveSize)
