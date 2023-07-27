@@ -39,13 +39,14 @@ namespace BuildATrain.Controllers
         public async Task<IActionResult> AddTrain(PostAddTrainRequest postAddTrainRequest)
         {
             var locomotiveSize = postAddTrainRequest.LocomotiveType.ToString();
-            var username = postAddTrainRequest.Email;
+            var locomotiveType = postAddTrainRequest.LocomotiveType;
+            var email = postAddTrainRequest.Email;
             var locomotiveName = postAddTrainRequest.LocomotiveName;
             var numFuelCars = 0;
             var numPassengerCars = 1;
             var numCargoCars = 0;
 
-            await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, username);
+            await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveType, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, email);
 
             return Ok();
         }

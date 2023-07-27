@@ -108,7 +108,7 @@ END;
 GO
 
 CREATE PROCEDURE GetAndRemovePlayerTrains
-  @Username NVARCHAR(50),
+  @Email NVARCHAR(50),
   @LocomotiveName VARCHAR(50)
 AS
 BEGIN
@@ -120,7 +120,7 @@ BEGIN
   SELECT pt.TrainId
   FROM PlayerTrains pt
   JOIN Players p ON p.Id = pt.PlayerId
-  WHERE p.Username = @Username AND pt.LocomotiveName = @LocomotiveName;
+  WHERE p.Email = @Email AND pt.LocomotiveName = @LocomotiveName;
 
   DELETE pt
   FROM PlayerTrains pt
@@ -129,7 +129,7 @@ BEGIN
   SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, pt.LocomotiveName
   FROM PlayerTrains pt
   JOIN Players p ON p.Id = pt.PlayerId
-  WHERE p.Username = @Username;
+  WHERE p.Email = @Email;
 
   DROP TABLE #TempPlayerTrainsToRemove;
 END;

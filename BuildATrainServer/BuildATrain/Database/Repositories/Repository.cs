@@ -3,6 +3,7 @@ using BuildATrain.Database.Models;
 using BuildATrain.Models.Game;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Data;
 using System.Diagnostics;
 
@@ -57,21 +58,33 @@ namespace BuildATrain.Database.Repositories
             return result;
         }
 
-        public async Task InsertPlayerTrainAsync(string locomotiveSize, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string username)
+        public async Task<bool> InsertPlayerTrainAsync(string locomotiveSize, int locomotiveType, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string email)
         {
-            // -> 1 -> carry on
-            var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
-            var locomotiveNameParam = new SqlParameter("@LocomotiveName", SqlDbType.VarChar) { Value = locomotiveName };
-            var numFuelCarsParam = new SqlParameter("@NumFuelCars", SqlDbType.Int) { Value = numFuelCars };
-            var numPassengerCarsParam = new SqlParameter("@NumPassengerCars", SqlDbType.Int) { Value = numPassengerCars };
-            var numCargoCarsParam = new SqlParameter("@NumCargoCars", SqlDbType.Int) { Value = numCargoCars };
-            var usernameParam = new SqlParameter("@Username", SqlDbType.VarChar) { Value = username };
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Username",
-                locomotiveSizeParam, locomotiveNameParam, numFuelCarsParam, numPassengerCarsParam, numCargoCarsParam, usernameParam);
+            var currentWallet = GetCurrentWalletByEmail(email).Result.CurrentWallet;
+
+            var isSuccess = await PreformPurchase(email, locomotiveType, currentWallet);
+
+            if (isSuccess)
+            {
+                var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
+                var locomotiveTypeParam = new SqlParameter("@LocomotiveType", SqlDbType.VarChar) { Value = locomotiveType };
+                var locomotiveNameParam = new SqlParameter("@LocomotiveName", SqlDbType.VarChar) { Value = locomotiveName };
+                var numFuelCarsParam = new SqlParameter("@NumFuelCars", SqlDbType.Int) { Value = numFuelCars };
+                var numPassengerCarsParam = new SqlParameter("@NumPassengerCars", SqlDbType.Int) { Value = numPassengerCars };
+                var numCargoCarsParam = new SqlParameter("@NumCargoCars", SqlDbType.Int) { Value = numCargoCars };
+                var emailParam = new SqlParameter("@Email", SqlDbType.VarChar) { Value = email };
+
+                await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveType @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Email",
+                    locomotiveSizeParam, locomotiveTypeParam, locomotiveNameParam, numFuelCarsParam, numPassengerCarsParam, numCargoCarsParam, emailParam);
+
+                return true;
+            }
+
+            return false;
         }
 
-        public async Task<Attributes> GetAttributesByAttributeIdAsync(string attributeId)
+        public async Task<Attributes> GetAttributesByAttributeIdAsync(int attributeId)
         {
             var attributeIdParam = new SqlParameter("@AttributeId", SqlDbType.NVarChar) { Value = attributeId };
             var result = await _context.Set<Attributes>()
@@ -110,9 +123,14 @@ namespace BuildATrain.Database.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task GetCurrentWalletByEmail(string email)
+        public async Task<WalletModel> GetCurrentWalletByEmail(string email)
         {
+            var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar) { Value = email };
+            var result = await _context.Set<WalletModel>()
+                .FromSqlRaw("EXEC GetCurrentWalletByEmail @Email", emailParam)
+                .FirstAsync();
 
+            return result;
         }
 
         public async Task<bool> PreformPurchase(string email, int attributeId, decimal currentWallet)
