@@ -4,6 +4,7 @@ using BuildATrain.Models.Game;
 using BuildATrain.Models.Http.Request;
 using BuildATrain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace BuildATrain.Controllers
@@ -51,9 +52,15 @@ namespace BuildATrain.Controllers
 
         [HttpPost]
         [Route("add/car")]
-        public void AddCar(PostAddCarRequest postAddCarRequest)
+        public async Task<IActionResult> AddCar(PostAddCarRequest postAddCarRequest)
         {
+            var username = postAddCarRequest.Username;
+            var locomotiveName = postAddCarRequest.LocomotiveName;
+            var carType = postAddCarRequest.CarType;
 
+            await AddCarAsync(username, locomotiveName, carType);
+
+            return Ok();
         }
 
         #endregion
@@ -94,9 +101,15 @@ namespace BuildATrain.Controllers
 
         [HttpDelete]
         [Route("remove/car")]
-        public void RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
+        public async Task<IActionResult> RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
         {
+            var username = deleteRemoveCarRequest.Username;
+            var locomotiveName = deleteRemoveCarRequest.LocomotiveName;
+            var carType = deleteRemoveCarRequest.CarType;
 
+            await RemoveCarAsync(username, locomotiveName, carType);
+
+            return Ok();
         }
 
         private async Task<bool> RemoveTrainAsync(string username, string locomotiveName)
@@ -115,15 +128,36 @@ namespace BuildATrain.Controllers
             return true;
         }
 
-        private async Task<bool> AddCarAsync()
+        private async Task<bool> AddCarAsync(string username, string locomotiveName, CarType carType)
         {
+            var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            if (train == null)
+            {
+                return false;
+            }
+
+            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, 1);
             return true;
         }
 
-        private async Task<bool> RemoveCarAsync()
+        private async Task<bool> RemoveCarAsync(string username, string locomotiveName, CarType carType)
         {
+            var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            if (train == null)
+            {
+                return false;
+            }
+
+            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, -1);
             return true;
         }
+
         #endregion
     }
 }

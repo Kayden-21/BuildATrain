@@ -1,4 +1,5 @@
-﻿using BuildATrain.Database.Models;
+﻿using BuildATrain.Common;
+using BuildATrain.Database.Models;
 using BuildATrain.Models.Game;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -77,6 +78,36 @@ namespace BuildATrain.Database.Repositories
                 .FirstAsync();
 
             return result;
+        }
+
+        public async Task<bool> UpdateCarCountAsync(int trainId, CarType carType, int count)
+        {
+            var train = await _entitySet
+                .OfType<TrainModel>()
+                .FirstOrDefaultAsync(t => t.TrainId == trainId);
+
+            if (train == null)
+            {
+                return false;
+            }
+
+            switch (carType)
+            {
+                case CarType.Passenger:
+                    train.PassengerCarCount += count;
+                    break;
+                case CarType.Cargo:
+                    train.CargoCarCount += count;
+                    break;
+                case CarType.Fuel:
+                    train.FuelCarCount += count;
+                    break;
+                default:
+                    return false;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BuildATrain.Database.Models;
+﻿using BuildATrain.Common;
+using BuildATrain.Database.Models;
 using BuildATrain.Models.Game;
 using System.Diagnostics;
 
@@ -14,5 +15,6 @@ namespace BuildATrain.Database.Repositories
         Task<IEnumerable<TrainModel>> GetPlayerTrainsByUsernameAsync(string username);
         Task InsertPlayerTrainAsync(string locomotiveSize, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string username);
         Task<Attributes> GetAttributesByAttributeIdAsync(string attributeId);
+        Task<bool> UpdateCarCountAsync(int trainId, CarType carType, int count);
     }
 }
