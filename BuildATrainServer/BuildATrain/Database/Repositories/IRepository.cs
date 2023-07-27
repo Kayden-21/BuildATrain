@@ -13,5 +13,6 @@ namespace BuildATrain.Database.Repositories
         Task DeleteAsync(T entity);
         Task<IEnumerable<TrainModel>> GetPlayerTrainsByUsernameAsync(string username);
         Task InsertPlayerTrainAsync(string locomotiveSize, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string username);
+        Task<Attributes> GetAttributesByAttributeIdAsync(string attributeId);
     }
 }

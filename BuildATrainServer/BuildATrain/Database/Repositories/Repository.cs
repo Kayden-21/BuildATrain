@@ -56,8 +56,6 @@ namespace BuildATrain.Database.Repositories
             return result;
         }
 
-
-
         public async Task InsertPlayerTrainAsync(string locomotiveSize, string locomotiveName, int numFuelCars, int numPassengerCars, int numCargoCars, string username)
         {
             var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
@@ -69,6 +67,16 @@ namespace BuildATrain.Database.Repositories
 
             await _context.Database.ExecuteSqlRawAsync("EXEC InsertPlayerTrain @LocomotiveSize, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars, @Username",
                 locomotiveSizeParam, locomotiveNameParam, numFuelCarsParam, numPassengerCarsParam, numCargoCarsParam, usernameParam);
+        }
+
+        public async Task<Attributes> GetAttributesByAttributeIdAsync(string attributeId)
+        {
+            var attributeIdParam = new SqlParameter("@AttributeId", SqlDbType.NVarChar) { Value = attributeId };
+            var result = await _context.Set<Attributes>()
+                .FromSqlRaw("EXEC GetAttributesById @AttributeId", attributeIdParam)
+                .FirstAsync();
+
+            return result;
         }
     }
 }
