@@ -3,6 +3,8 @@ using BuildATrain.Database.Repositories;
 using BuildATrain.Services;
 using Lib.AspNetCore.ServerSentEvents;
 using Microsoft.AspNetCore.ResponseCompression;
+using BuildATrain.Database.Models;
+using BuildATrain.Models.Game;
 
 public class Program
 {
@@ -70,12 +72,14 @@ public class Program
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddSingleton< GameManagementService>();
-
-        services.AddDbContext<DatabaseContext>(options =>
+        services.AddDbContext<DbContext, DatabaseContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("BuildATrain")));
 
         // Configure repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped(typeof(IRepository<Attributes>), typeof(Repository<Attributes>));
+        services.AddScoped(typeof(IRepository<TrainModel>), typeof(Repository<TrainModel>));
+
+        services.AddTransient<GameManagementService>();
     }
 }

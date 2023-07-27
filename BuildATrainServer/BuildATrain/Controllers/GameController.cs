@@ -2,8 +2,10 @@
 using BuildATrain.Database.Repositories;
 using BuildATrain.Models.Game;
 using BuildATrain.Models.Http.Request;
+using BuildATrain.Models.Http.Response;
 using BuildATrain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace BuildATrain.Controllers
@@ -38,22 +40,47 @@ namespace BuildATrain.Controllers
         public async Task<IActionResult> AddTrain(PostAddTrainRequest postAddTrainRequest)
         {
             var locomotiveSize = postAddTrainRequest.LocomotiveType.ToString();
-            var username = postAddTrainRequest.Username;
+            var locomotiveType = (int)postAddTrainRequest.LocomotiveType;
+            var email = postAddTrainRequest.Email;
             var locomotiveName = postAddTrainRequest.LocomotiveName;
             var numFuelCars = 0;
-            var numPassengerCars = 0;
+            var numPassengerCars = 1;
             var numCargoCars = 0;
 
-            await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, username);
+            var isAdded = await _trainRepository.InsertPlayerTrainAsync(locomotiveSize, locomotiveType, locomotiveName, numFuelCars, numPassengerCars, numCargoCars, email);
 
-            return Ok();
+            if (!isAdded)
+            {
+                return NotFound();
+            }
+
+            var game = await GetNewGame(email);
+            var response = new PostAddTrainResponse();
+            response.NewGameModel = game;
+
+            return Ok(value: response);
         }
 
         [HttpPost]
         [Route("add/car")]
-        public void AddCar(PostAddCarRequest postAddCarRequest)
+        public async Task<IActionResult> AddCar(PostAddCarRequest postAddCarRequest)
         {
+            var email = postAddCarRequest.Email;
+            var locomotiveName = postAddCarRequest.LocomotiveName;
+            var carType = postAddCarRequest.CarType;
 
+            var isAdded = await AddCarAsync(email, locomotiveName, carType);
+
+            if (!isAdded)
+            {
+                return NotFound();
+            }
+
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            return Ok(value: train);
         }
 
         #endregion
@@ -62,9 +89,11 @@ namespace BuildATrain.Controllers
 
         [HttpGet]
         [Route("load")]
-        public async Task LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
+        public async Task<IActionResult> LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
         {
-            await _gameManagementService.LoadGame(getLoadGameRequest.Username, new Models.Game.GameModel());
+            await _gameManagementService.LoadGame(getLoadGameRequest.Email);
+
+            return Ok(value: new GetLoadGameResponse());
         }
 
         #endregion
@@ -79,29 +108,48 @@ namespace BuildATrain.Controllers
         [Route("remove/train")]
         public async Task<IActionResult> RemoveTrain(DeleteRemoveTrainRequest deleteRemoveTrainRequest)
         {
-            var username = deleteRemoveTrainRequest.Username;
+            var email = deleteRemoveTrainRequest.Email;
             var locomotiveName = deleteRemoveTrainRequest.LocomotiveName;
 
-            var isRemoved = await RemoveTrainAsync(username, locomotiveName);
+            var isRemoved = await RemoveTrainAsync(email, locomotiveName);
 
             if (!isRemoved)
             {
                 return NotFound();
-        }
+            }
 
-            return NoContent();
+            var game = await GetNewGame(email);
+            var response = new DeleteRemoveTrainResponse();
+            response.NewGameModel = game;
+
+            return Ok(value: response);
         }
 
         [HttpDelete]
         [Route("remove/car")]
-        public void RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
+        public async Task<IActionResult> RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
         {
+            var email = deleteRemoveCarRequest.Email;
+            var locomotiveName = deleteRemoveCarRequest.LocomotiveName;
+            var carType = deleteRemoveCarRequest.CarType;
 
+            var isRemoved = await RemoveCarAsync(email, locomotiveName, carType);
+
+            if (!isRemoved)
+            {
+                return NotFound();
+            }
+
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            return Ok(value: train);
         }
 
-        private async Task<bool> RemoveTrainAsync(string username, string locomotiveName)
+        private async Task<bool> RemoveTrainAsync(string email, string locomotiveName)
         {
-            var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
 
             var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
 
@@ -115,15 +163,47 @@ namespace BuildATrain.Controllers
             return true;
         }
 
-        private async Task<bool> AddCarAsync()
+        private async Task<bool> AddCarAsync(string email, string locomotiveName, CarType carType)
         {
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            if (train == null)
+            {
+                return false;
+            }
+
+            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, 1, email);
             return true;
         }
 
-        private async Task<bool> RemoveCarAsync()
+        private async Task<bool> RemoveCarAsync(string email, string locomotiveName, CarType carType)
         {
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+
+            var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
+
+            if (train == null)
+            {
+                return false;
+            }
+
+            await _trainRepository.UpdateCarCountAsync(train.TrainId, carType, -1, email);
             return true;
         }
+
+        private async Task<GameModel> GetNewGame(string email)
+        {
+            var trainModels = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
+            GameModel gameModel = new GameModel();
+
+            gameModel.Email = email;
+            gameModel.Trains = trainModels.ToList();
+
+            return gameModel;
+        }
+
         #endregion
     }
 }

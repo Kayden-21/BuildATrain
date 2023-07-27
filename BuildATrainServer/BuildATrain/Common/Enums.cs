@@ -2,15 +2,15 @@
 {
     public enum LocomotiveType
     {
-        Small = 0,
-        Medium = 1,
-        Large = 2
+        Small = 1,
+        Medium = 2,
+        Large = 3
     }
 
     public enum CarType
     {
-        Passenger = 0,
-        Cargo = 1,
-        Fuel = 2
+        Passenger = 4,
+        Cargo = 5,
+        Fuel = 6
     }
 }
