@@ -67,7 +67,7 @@ namespace BuildATrain.Database.Repositories
             if (isSuccess)
             {
                 var locomotiveSizeParam = new SqlParameter("@LocomotiveSize", SqlDbType.VarChar) { Value = locomotiveSize };
-                var locomotiveTypeParam = new SqlParameter("@LocomotiveTypeId", SqlDbType.VarChar) { Value = locomotiveType };
+                var locomotiveTypeParam = new SqlParameter("@LocomotiveTypeId", SqlDbType.Int) { Value = locomotiveType };
                 var locomotiveNameParam = new SqlParameter("@LocomotiveName", SqlDbType.VarChar) { Value = locomotiveName };
                 var numFuelCarsParam = new SqlParameter("@NumFuelCars", SqlDbType.Int) { Value = numFuelCars };
                 var numPassengerCarsParam = new SqlParameter("@NumPassengerCars", SqlDbType.Int) { Value = numPassengerCars };
