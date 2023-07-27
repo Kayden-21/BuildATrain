@@ -35,6 +35,6 @@ VALUES
   (3, 3, 3, 'Glacier Express', 1, 6, 4),
   (4, 1, 2, 'Super Chief', 1, 3, 2),
   (5, 2, 3, 'Flying Scotsman', 2, 6, 4),
-  (6, 3, 4, 'Blue Train', 3, 4, 1),
+  (6, 3, 2, 'Blue Train', 3, 4, 1),
   (7, 4, 1, 'Yellow Train', 2, 5, 3),
-  (8, 5, 5, 'Red Train', 1, 4, 2);
+  (8, 5, 2, 'Red Train', 1, 4, 2);
