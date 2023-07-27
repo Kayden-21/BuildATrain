@@ -9,8 +9,8 @@
 
     public enum CarType
     {
-        Passenger = 0,
-        Cargo = 1,
-        Fuel = 2
+        Passenger = 4,
+        Cargo = 5,
+        Fuel = 6
     }
 }

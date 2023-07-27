@@ -1,14 +1,21 @@
 ﻿using BuildATrain.Common;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BuildATrain.Models.Game
 {
+    [Table("PlayerTrains")]
     public class TrainModel
     {
-        public LocomotiveType LocomotiveType { get; set; }
+        [Key]
+        public int TrainId { get; set; }
+
+        public LocomotiveType LocomotiveTypeId { get; set; }
         public string LocomotiveName { get; set; }
 
-        public int PassengerCarCount { get; set; }
-        public int CargoCarCount { get; set; }
-        public int FuelCarCount { get; set; }
+        public int NumPassengerCars { get; set; }
+        public int NumCargoCars { get; set; }
+        public int NumFuelCars { get; set; }
     }
 }

@@ -4,6 +4,6 @@ namespace BuildATrain.Models.Http.Response
 {
     public class PostAddTrainResponse
     {
-        TrainModel NewTrainModel { get; set; }
+        public TrainModel NewTrainModel { get; set; }
     }
 }

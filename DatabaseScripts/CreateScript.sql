@@ -1,6 +1,9 @@
 USE master;
 GO
 
+DROP DATABASE BuildATrainDb
+GO
+
 CREATE DATABASE BuildATrainDb
 GO
 
@@ -13,7 +16,9 @@ CREATE TABLE Attributes (
   CarCapacity INT,
   FuelUse INT,
   FuelAdded INT,
-  PurchasePrice DECIMAL(18,2)
+  PurchasePrice DECIMAL(18,2),
+  IncomeMinRange INT,
+  IncomeMaxRange INT
 );
 GO
 
@@ -37,6 +42,7 @@ CREATE TABLE PlayerTrains (
   TrainId INT PRIMARY KEY,
   PlayerId INT,
   LocomotiveTypeId INT,
+  LocomotiveName VARCHAR(50),
   NumFuelCars INT,
   NumPassengerCars INT,
   NumCargoCars INT,
@@ -50,6 +56,30 @@ GO
 Stored Procs
 */
 
+CREATE PROCEDURE InsertPlayerTrain
+    @LocomotiveSize VARCHAR(255),
+	@LocomotiveName VARCHAR(50),
+    @NumFuelCars INT,
+    @NumPassengerCars INT,
+    @NumCargoCars INT,
+    @Username VARCHAR(50)
+AS
+BEGIN
+    DECLARE @LocomotiveId INT
+    DECLARE @PlayerId INT
+
+    INSERT INTO Locomotives (AttributeId, LocomotiveSize)
+    VALUES (2, @LocomotiveSize);
+
+    SET @LocomotiveId = SCOPE_IDENTITY();
+
+    SELECT @PlayerId = Id FROM Players WHERE Username = @Username;
+
+    INSERT INTO PlayerTrains (TrainId, PlayerId, LocomotiveTypeId, LocomotiveName, NumFuelCars, NumPassengerCars, NumCargoCars)
+    VALUES (@LocomotiveId, @PlayerId, @LocomotiveId, @LocomotiveName, @NumFuelCars, @NumPassengerCars, @NumCargoCars);
+END;
+GO
+
 /* GetPlayerTrainsByEmail takes user email, and returns the player's train setup */
 CREATE PROCEDURE GetPlayerTrainsByEmail
   @Email NVARCHAR(255)
@@ -57,11 +87,51 @@ AS
 BEGIN
   SET NOCOUNT ON;
 
-  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, l.LocomotiveSize
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, pt.LocomotiveName, pt.LocomotiveTypeId
   FROM PlayerTrains pt
   JOIN Players p ON p.Id = pt.PlayerId
-  JOIN Locomotives l ON l.Id = pt.LocomotiveTypeId
   WHERE p.Email = @Email;
+END;
+GO
+
+CREATE PROCEDURE GetPlayerTrainsByUsername
+  @Username NVARCHAR(50)
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, pt.LocomotiveName, pt.LocomotiveTypeId
+  FROM PlayerTrains pt
+  JOIN Players p ON p.Id = pt.PlayerId
+  WHERE p.Username = @Username;
+END;
+GO
+
+CREATE PROCEDURE GetAndRemovePlayerTrains
+  @Username NVARCHAR(50),
+  @LocomotiveName VARCHAR(50)
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  CREATE TABLE #TempPlayerTrainsToRemove (PlayerTrainId INT PRIMARY KEY);
+
+  INSERT INTO #TempPlayerTrainsToRemove (PlayerTrainId)
+  SELECT pt.TrainId
+  FROM PlayerTrains pt
+  JOIN Players p ON p.Id = pt.PlayerId
+  WHERE p.Username = @Username AND pt.LocomotiveName = @LocomotiveName;
+
+  DELETE pt
+  FROM PlayerTrains pt
+  WHERE pt.TrainId IN (SELECT PlayerTrainId FROM #TempPlayerTrainsToRemove);
+
+  SELECT pt.TrainId, pt.NumCargoCars, pt.NumFuelCars, pt.NumPassengerCars, pt.LocomotiveName
+  FROM PlayerTrains pt
+  JOIN Players p ON p.Id = pt.PlayerId
+  WHERE p.Username = @Username;
+
+  DROP TABLE #TempPlayerTrainsToRemove;
 END;
 GO
 
@@ -91,9 +161,21 @@ BEGIN
 END;
 GO
 
+CREATE PROCEDURE GetCurrentWalletByUsername
+  @Username INT
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  SELECT CurrentWallet
+  FROM Players
+  WHERE Username = @Username;
+END;
+GO
+
 /* PerformPurchaseByAttributeId takes playerId and attributeId, and returns the new wallet, a success bit and a message */
 CREATE PROCEDURE PerformPurchaseByAttributeId
-  @PlayerId INT,
+  @Email VARCHAR(50),
   @AttributeId INT,
   @CurrentWallet DECIMAL(18,2) OUTPUT,
   @Success BIT OUTPUT,
@@ -111,15 +193,11 @@ BEGIN
     FROM Attributes
     WHERE Id = @AttributeId;
 
-    SELECT @CurrentWallet = CurrentWallet
-    FROM Players
-    WHERE Id = @PlayerId;
-
     IF @CurrentWallet >= @PurchasePrice
     BEGIN
       UPDATE Players
       SET CurrentWallet = CurrentWallet - @PurchasePrice
-      WHERE Id = @PlayerId;
+      WHERE Email = @Email;
 
       SET @CurrentWallet = @CurrentWallet - @PurchasePrice;
       SET @Success = 1;
