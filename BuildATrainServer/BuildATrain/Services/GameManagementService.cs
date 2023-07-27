@@ -2,6 +2,8 @@
 using BuildATrain.Models.Game;
 using Lib.AspNetCore.ServerSentEvents;
 using BuildATrain.Database.Models;
+using BuildATrain.Models.Event;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace BuildATrain.Services
 {
@@ -146,7 +148,14 @@ namespace BuildATrain.Services
 
                         }
 
-                        await SendSSEEventAsync(clientGuidMapping.First(c => c.Value == gameModel.Username).Key, new List<string> { income.ToString() });
+                        var retList = new List<KeyValuePair<string, string>>();
+                        retList.Add(new KeyValuePair<string, string>
+                        (
+                            "wallet",
+                            income.ToString()
+                        ));
+
+                        await SendSSEEventAsync(clientGuidMapping.First(c => c.Value == gameModel.Username).Key, new UpdateGameEvent { Response = retList });
                     }
                     catch (Exception e)
                     {
