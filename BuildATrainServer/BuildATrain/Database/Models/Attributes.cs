@@ -1,5 +1,8 @@
-﻿namespace BuildATrain.Database.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BuildATrain.Database.Models
 {
+    [Table("Attributes")]
     public class Attributes
     {
         public int Id { get; set; }

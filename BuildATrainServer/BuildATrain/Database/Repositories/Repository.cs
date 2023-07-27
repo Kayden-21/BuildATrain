@@ -94,13 +94,13 @@ namespace BuildATrain.Database.Repositories
             switch (carType)
             {
                 case CarType.Passenger:
-                    train.PassengerCarCount += count;
+                    train.NumPassengerCars += count;
                     break;
                 case CarType.Cargo:
-                    train.CargoCarCount += count;
+                    train.NumCargoCars += count;
                     break;
                 case CarType.Fuel:
-                    train.FuelCarCount += count;
+                    train.NumFuelCars += count;
                     break;
                 default:
                     return false;
