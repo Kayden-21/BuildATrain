@@ -1,4 +1,4 @@
-﻿using BuildATrain.Database.Repositories;
+using BuildATrain.Database.Repositories;
 using BuildATrain.Models.Game;
 using Lib.AspNetCore.ServerSentEvents;
 using BuildATrain.Database.Models;
@@ -41,10 +41,10 @@ namespace BuildATrain.Services
         {
             if (!loadedGames.ContainsKey(userID))
             {
-                var trainModels = await _trainRepository.GetPlayerTrainsByUsernameAsync(userID);
+                var trainModels = await _trainRepository.GetPlayerTrainsByEmailAsync(userID);
                 GameModel gameModel = new GameModel();
 
-                gameModel.Username = userID;
+                gameModel.Email = userID;
                 gameModel.Trains = trainModels.ToList();
 
                 loadedGames.Add(userID, new Thread(() => RunGameLoop(gameModel)));

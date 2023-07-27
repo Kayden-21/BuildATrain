@@ -47,11 +47,11 @@ namespace BuildATrain.Database.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<TrainModel>> GetPlayerTrainsByUsernameAsync(string username)
+        public async Task<IEnumerable<TrainModel>> GetPlayerTrainsByEmailAsync(string email)
         {
-            var usernameParam = new SqlParameter("@Username", SqlDbType.NVarChar) { Value = username };
+            var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar) { Value = email };
             var result = await _context.Set<TrainModel>()
-                .FromSqlRaw("EXEC GetPlayerTrainsByUsername @Username", usernameParam)
+                .FromSqlRaw("EXEC GetPlayerTrainsByEmail @Email", emailParam)
                 .ToListAsync();
 
             return result;

@@ -39,7 +39,7 @@ namespace BuildATrain.Controllers
         public async Task<IActionResult> AddTrain(PostAddTrainRequest postAddTrainRequest)
         {
             var locomotiveSize = postAddTrainRequest.LocomotiveType.ToString();
-            var username = postAddTrainRequest.Username;
+            var username = postAddTrainRequest.Email;
             var locomotiveName = postAddTrainRequest.LocomotiveName;
             var numFuelCars = 0;
             var numPassengerCars = 1;
@@ -54,7 +54,7 @@ namespace BuildATrain.Controllers
         [Route("add/car")]
         public async Task<IActionResult> AddCar(PostAddCarRequest postAddCarRequest)
         {
-            var username = postAddCarRequest.Username;
+            var username = postAddCarRequest.Email;
             var locomotiveName = postAddCarRequest.LocomotiveName;
             var carType = postAddCarRequest.CarType;
 
@@ -71,7 +71,7 @@ namespace BuildATrain.Controllers
         [Route("load")]
         public async Task LoadGame([FromQuery] GetLoadGameRequest getLoadGameRequest)
         {
-            await _gameManagementService.LoadGame(getLoadGameRequest.Username);
+            await _gameManagementService.LoadGame(getLoadGameRequest.Email);
         }
 
         #endregion
@@ -86,10 +86,10 @@ namespace BuildATrain.Controllers
         [Route("remove/train")]
         public async Task<IActionResult> RemoveTrain(DeleteRemoveTrainRequest deleteRemoveTrainRequest)
         {
-            var username = deleteRemoveTrainRequest.Username;
+            var email = deleteRemoveTrainRequest.Email;
             var locomotiveName = deleteRemoveTrainRequest.LocomotiveName;
 
-            var isRemoved = await RemoveTrainAsync(username, locomotiveName);
+            var isRemoved = await RemoveTrainAsync(email, locomotiveName);
 
             if (!isRemoved)
             {
@@ -103,18 +103,18 @@ namespace BuildATrain.Controllers
         [Route("remove/car")]
         public async Task<IActionResult> RemoveCar(DeleteRemoveCarRequest deleteRemoveCarRequest)
         {
-            var username = deleteRemoveCarRequest.Username;
+            var email = deleteRemoveCarRequest.Email;
             var locomotiveName = deleteRemoveCarRequest.LocomotiveName;
             var carType = deleteRemoveCarRequest.CarType;
 
-            await RemoveCarAsync(username, locomotiveName, carType);
+            await RemoveCarAsync(email, locomotiveName, carType);
 
             return Ok();
         }
 
-        private async Task<bool> RemoveTrainAsync(string username, string locomotiveName)
+        private async Task<bool> RemoveTrainAsync(string email, string locomotiveName)
         {
-            var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
 
             //var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
 
@@ -128,9 +128,9 @@ namespace BuildATrain.Controllers
             return true;
         }
 
-        private async Task<bool> AddCarAsync(string username, string locomotiveName, CarType carType)
+        private async Task<bool> AddCarAsync(string email, string locomotiveName, CarType carType)
         {
-            var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
 
             var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
 
@@ -143,9 +143,9 @@ namespace BuildATrain.Controllers
             return true;
         }
 
-        private async Task<bool> RemoveCarAsync(string username, string locomotiveName, CarType carType)
+        private async Task<bool> RemoveCarAsync(string email, string locomotiveName, CarType carType)
         {
-            var playerTrains = await _trainRepository.GetPlayerTrainsByUsernameAsync(username);
+            var playerTrains = await _trainRepository.GetPlayerTrainsByEmailAsync(email);
 
             var train = playerTrains.FirstOrDefault(t => t.LocomotiveName == locomotiveName);
 

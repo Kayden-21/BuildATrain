@@ -2,7 +2,7 @@
 {
     public class DeleteRemoveTrainRequest
     {
-        public string Username { get; set; }
+        public string Email { get; set; }
 
         public string LocomotiveName { get; set; }
     }
